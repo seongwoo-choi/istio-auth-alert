@@ -1,0 +1,40 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - security.istio.io
+  resources:
+  - authorizationpolicies
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - security.musinsa.com
+  resources:
+  - authpolicywatchers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - security.musinsa.com
+  resources:
+  - authpolicywatchers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - security.musinsa.com
+  resources:
+  - authpolicywatchers/status
+  verbs:
+  - get
+  - patch
+  - update
