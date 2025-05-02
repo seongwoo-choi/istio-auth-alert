@@ -21,12 +21,25 @@ make docker-build docker-push IMG=<some-registry>/auth-alert:tag
 
 **NOTE:** This image ought to be published in the personal registry you specified.
 And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
+Make sure you have the proper permission to the registry if the above commands don't work.
 
 **Install the CRDs into the cluster:**
 
 ```sh
 make install
+```
+
+### Configure Slack Webhook
+
+Before running `make deploy`, add your Slack webhook URL to `config/manager/manager.yaml` under the `manager` container spec:
+
+```yaml
+        containers:
+        - name: manager
+          image: <your-image>
+          env:
+          - name: SLACK_WEBHOOK_URL
+            value: "<https://hooks.slack.com/services/XXX/YYY/ZZZ>"
 ```
 
 **Deploy the Manager to the cluster with the image specified by `IMG`:**
