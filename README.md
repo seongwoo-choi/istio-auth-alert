@@ -1,80 +1,44 @@
 # auth-alert
-// TODO(user): Add simple overview of use/purpose
+Istio AuthorizationPolicy 변경 감시 및 Slack 알림 컨트롤러
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+## 설명
+이 컨트롤러는 Istio의 AuthorizationPolicy 리소스를 모니터링하여
+remoteIpBlocks 또는 hosts 필드에 변경(추가)이 발생할 때마다
+설정된 Slack 채널로 알림을 전송합니다.
 
-## Getting Started
+## Prerequisites
+- Go v1.22+
+- Docker 17.03+
+- kubectl v1.11.3+
+- Istio authorizationpolicies CRD가 설치된 Kubernetes 클러스터
 
-### Prerequisites
-- go version v1.22.0+
-- docker version 17.03+.
-- kubectl version v1.11.3+.
-- Access to a Kubernetes v1.11.3+ cluster.
+## 설치 및 배포
 
-### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
-
+1. 이미지 빌드·푸시
 ```sh
-make docker-build docker-push IMG=<some-registry>/auth-alert:tag
+make docker-build IMG=<registry>/auth-alert:<version>
+make docker-push  IMG=<registry>/auth-alert:<version>
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
-And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don't work.
-
-**Install the CRDs into the cluster:**
-
-```sh
-make install
-```
-
-### Configure Slack Webhook
-
-Before running `make deploy`, add your Slack webhook URL to `config/manager/manager.yaml` under the `manager` container spec:
-
+2. Slack Webhook 설정
+`config/manager/manager.yaml`의 `containers` 아래 `env` 섹션에 다음을 추가합니다.
 ```yaml
-        containers:
-        - name: manager
-          image: <your-image>
-          env:
-          - name: SLACK_WEBHOOK_URL
-            value: "<https://hooks.slack.com/services/XXX/YYY/ZZZ>"
+- name: SLACK_WEBHOOK_URL
+  value: "<https://hooks.slack.com/services/XXX/YYY/ZZZ>"
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
-
+3. 배포
 ```sh
-make deploy IMG=<some-registry>/auth-alert:tag
+make deploy IMG=<registry>/auth-alert:<version>
 ```
 
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
-privileges or be logged in as admin.
-
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
-
+4. 실행 확인
 ```sh
-kubectl apply -k config/samples/
+kubectl -n auth-alert-system get deploy
+kubectl -n auth-alert-system logs deploy/auth-alert-controller-manager -c manager
 ```
 
->**NOTE**: Ensure that the samples has default values to test it out.
-
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
-
-```sh
-kubectl delete -k config/samples/
-```
-
-**Delete the APIs(CRDs) from the cluster:**
-
-```sh
-make uninstall
-```
-
-**UnDeploy the controller from the cluster:**
-
+## 삭제
 ```sh
 make undeploy
 ```
