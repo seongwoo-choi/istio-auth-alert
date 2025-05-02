@@ -7,7 +7,7 @@ remoteIpBlocks 또는 hosts 필드에 변경(추가)이 발생할 때마다
 설정된 Slack 채널로 알림을 전송합니다.
 
 ## Prerequisites
-- Go v1.22+
+- Go v1.24+
 - Docker 17.03+
 - kubectl v1.11.3+
 - Istio authorizationpolicies CRD가 설치된 Kubernetes 클러스터
