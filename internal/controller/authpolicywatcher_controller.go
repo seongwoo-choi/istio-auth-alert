@@ -55,16 +55,31 @@ type AuthPolicyWatcherReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.0/pkg/reconcile
 // Kubernetes API 서버 → (이벤트 발생) → 컨트롤러(SetupWithManager) → 필터링(predicate) → Reconcile 메서드 실행
 func (r *AuthPolicyWatcherReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	logger := log.FromContext(ctx)
-	policy := &securityv1beta1.AuthorizationPolicy{}
-	if err := r.Get(ctx, req.NamespacedName, policy); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
-	}
-	message := buildAlertMessage(policy)
-	if err := sendSlackAlert(message); err != nil {
-		logger.Error(err, "failed to send Slack alert")
-	}
-	return ctrl.Result{}, nil
+    logger := log.FromContext(ctx)
+    policy := &securityv1beta1.AuthorizationPolicy{}
+    err := r.Get(ctx, req.NamespacedName, policy)
+    
+    // 삭제 이벤트 감지 (404 Not Found)
+    if client.IgnoreNotFound(err) != nil {
+        return ctrl.Result{}, err
+    }
+    
+    // 객체가 존재하지 않으면 삭제된 것
+    if err != nil {
+        message := fmt.Sprintf("AuthorizationPolicy %s/%s 삭제됨", req.Namespace, req.Name)
+        if err := sendSlackAlert(message); err != nil {
+            logger.Error(err, "failed to send Slack alert for deletion")
+        }
+        return ctrl.Result{}, nil
+    }
+    
+    // 기존 코드 (생성/수정 이벤트 처리)
+    message := buildAlertMessage(policy)
+    if err := sendSlackAlert(message); err != nil {
+        logger.Error(err, "failed to send Slack alert")
+    }
+    
+    return ctrl.Result{}, nil
 }
 
 func buildAlertMessage(policy *securityv1beta1.AuthorizationPolicy) string {
@@ -157,6 +172,9 @@ func (r *AuthPolicyWatcherReconciler) SetupWithManager(mgr ctrl.Manager) error {
 				}
 			}
 			return false
+		},
+		DeleteFunc: func(e event.DeleteEvent) bool {
+			return true
 		},
 	}
 	return ctrl.NewControllerManagedBy(mgr).
