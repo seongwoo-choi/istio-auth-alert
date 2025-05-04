@@ -3,7 +3,7 @@ Istio AuthorizationPolicy 변경 감시 및 Slack 알림 컨트롤러
 
 ## 설명
 이 컨트롤러는 Istio의 AuthorizationPolicy 리소스를 모니터링하여
-remoteIpBlocks 또는 hosts 필드에 변경(추가)이 발생할 때마다
+remoteIpBlocks 또는 hosts 필드에 변경이 발생할 때마다
 설정된 Slack 채널로 알림을 전송합니다.
 
 ## Prerequisites
