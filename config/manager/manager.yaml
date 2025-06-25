@@ -86,12 +86,12 @@ spec:
         # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         resources:
           limits:
-            memory: 256Mi
+            memory: 512Mi
           requests:
             cpu: 100m
-            memory: 256Mi
+            memory: 512Mi
         env:
         - name: SLACK_WEBHOOK_URL
-          value: https://hooks.slack.com/services/XXXXXXXXXXXXX
+          value: https://hooks.slack.com/services/XXXXXXX
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
