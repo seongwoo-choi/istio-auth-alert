@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: how0326/istio-auth-alert
-  newTag: v0.0.2
+  newTag: v0.0.3
